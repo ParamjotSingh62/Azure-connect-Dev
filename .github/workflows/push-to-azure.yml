@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - path/to/your/files/** # Adjust this path as needed
+      - path/to/your/files/**
 
 jobs:
   upload:
@@ -23,8 +23,11 @@ jobs:
         AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
         AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
       run: |
+        echo "Starting Azure Blob Storage upload..."
         az storage blob upload-batch \
           -d '/test/Azure_git_connect/' \
           --account-name $AZURE_STORAGE_ACCOUNT_NAME \
           --account-key $AZURE_STORAGE_ACCOUNT_KEY \
-          -s path/to/your/files
+          -s path/to/your/files \
+          || { echo "Azure CLI command failed"; exit 1; }
+        echo "Azure Blob Storage upload completed."
