@@ -1,0 +1,36 @@
+name: Pull from Azure Blob Storage
+
+on:
+  workflow_dispatch: # Allows manual trigger
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight, adjust as needed
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Azure CLI
+      uses: azure/CLI@v1
+
+    - name: Download files from Azure Blob Storage
+      env:
+        AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+        AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
+      run: |
+        az storage blob download-batch \
+          -d '/test/Azure_git_connect/' \
+          --account-name $AZURE_STORAGE_ACCOUNT_NAME \
+          --account-key $AZURE_STORAGE_ACCOUNT_KEY \
+          -s path/to/save/files
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add path/to/save/files
+        git commit -m "Update files from Azure Blob Storage"
+        git push
