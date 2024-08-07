@@ -21,11 +21,14 @@ jobs:
         AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
         AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
       run: |
+        echo "Starting Azure Blob Storage download..."
         az storage blob download-batch \
           -d '/test/Azure_git_connect/' \
           --account-name $AZURE_STORAGE_ACCOUNT_NAME \
           --account-key $AZURE_STORAGE_ACCOUNT_KEY \
-          -s path/to/save/files
+          -s path/to/save/files \
+          || { echo "Azure CLI command failed"; exit 1; }
+        echo "Azure Blob Storage download completed."
 
     - name: Commit and push changes
       run: |
